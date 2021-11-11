@@ -3,6 +3,7 @@
 const gameBody = document.body.querySelector('.game-body');
 const rows = document.body.querySelectorAll('.row');
 const cells = document.body.querySelectorAll('.row-item');
+let acces = false;
 
 document.addEventListener('keydown', moveBlock);
 
@@ -41,16 +42,18 @@ function putBlockInCell() {
     const positionX = getRandomInt(gameBody.children.length);
     const positionY = getRandomInt(rows.length);
     
-    cells.forEach(cell => {
-        
+    for (let cell of cells) {
         if (cell.getAttribute('x') == positionX &&
             cell.getAttribute('y') == positionY &&
             (!cell.classList.contains('notempty'))) {
             
             cell.append(createBlock(positionX,positionY));
+            cell.classList.remove('empty');
             cell.classList.add('notempty');
+            acces = true
+            break
         }
-    });
+    }
 }
 
 function getRandomInt(maxVelue) {
@@ -66,5 +69,16 @@ function sumNumbers() {
 }
 
 
-putBlockInCell();
-putBlockInCell();
+function checkAndPut (){
+    
+    while (!acces) { 
+        
+        
+        putBlockInCell()
+    }
+    
+    acces = !acces;
+}
+
+
+
