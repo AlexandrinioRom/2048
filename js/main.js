@@ -26,7 +26,7 @@ function createGameField() {
         for (let j = 0; j < 4; j++) {
 
             const rowItem = document.createElement('div');
-            rowItem.classList.add('row-item','empty');
+            rowItem.classList.add('row-item');
             row.append(rowItem);
 
             matrix[i][j] = 0;
@@ -50,8 +50,11 @@ function getRndEmptyCellAndPutBlock() {
     const block = document.createElement('div');
     block.className = 'block';
     block.innerText = value;
-    gameBody.children[matrixX].children[matrixY].append(block);
-    
+
+    const cell = gameBody.children[matrixX].children[matrixY];
+    cell.classList.add('notempty');
+    cell.append(block);
+
 }
 
 function getRandomInt(min, max) {
@@ -90,6 +93,7 @@ function moveBlock(event) {
         case 'ArrowRight':
             console.log('right');
 
+            mooveRight()
 
             break;
 
@@ -110,3 +114,34 @@ function moveBlock(event) {
     }
 }
 
+function mooveRight() {
+
+    for(let x = 0; x < matrix.length; x++) {
+        for(let y = matrix[x].length-2; y >= 0; y--) {
+            
+            let currentCell = gameBody.children[x].children[y];
+            let nextCell = gameBody.children[x].children[y+1];
+            let currentBlock = currentCell.firstElementChild;
+            let nextBlock = nextCell.firstElementChild;
+            
+            if(currentBlock) {
+                
+                if (nextBlock) {
+                    
+                    if (currentBlock.innerText == nextBlock.innerText) {
+
+                        currentBlock.remove();
+                        currentBlock = null;
+                        nextBlock.innerText *= 2; 
+                    }
+                    continue
+                }
+
+                nextCell.classList.add('notempty');
+                currentCell.classList.remove('notempty');
+                nextCell.append(currentCell.firstElementChild);
+            }
+          
+        }
+    }
+}
