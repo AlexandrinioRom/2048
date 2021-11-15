@@ -5,13 +5,13 @@ const matrix = [];
 
 document.addEventListener('keydown', moveBlock);
 
-
 createGameField();
 getRndEmptyCellAndPutBlock();
 
-
-console.log(matrix);
-console.log(matrix.flat(2));
+matrix.removeClass = function(cell,isShifted) {
+    cell.classList.remove('block');
+    cell.innerHTML = '';
+}
 
 function createGameField() {
 
@@ -31,7 +31,7 @@ function createGameField() {
 
             matrix[i][j] = 0;
         }
-    } return matrix;
+    }
 }
 
 function getRndEmptyCellAndPutBlock() {
@@ -47,14 +47,7 @@ function getRndEmptyCellAndPutBlock() {
 
     matrix[matrixX][matrixY] = value;
     
-    const block = document.createElement('div');
-    block.className = 'block';
-    block.innerText = value;
-
-    const cell = gameBody.children[matrixX].children[matrixY];
-    cell.classList.add('notempty');
-    cell.append(block);
-
+    renderMatrix(matrix);
 }
 
 function getRandomInt(min, max) {
@@ -94,7 +87,7 @@ function moveBlock(event) {
             console.log('right');
 
             mooveRight()
-
+            
             break;
 
         case 'KeyS':
@@ -114,34 +107,68 @@ function moveBlock(event) {
     }
 }
 
+function renderMatrix(matrix) {
+    
+    for(let x = 0; x < matrix.length; x++) {
+        for(let y = 0; y < matrix.length; y++) {
+
+            const cell = gameBody.children[x].children[y];
+            if(!matrix[x][y]) continue;
+            cell.innerHTML = matrix[x][y];
+            cell.classList.add('block');
+        }
+    }
+}
+
 function mooveRight() {
+
+    let isShifted = false;
 
     for(let x = 0; x < matrix.length; x++) {
         for(let y = matrix[x].length-2; y >= 0; y--) {
-            
-            let currentCell = gameBody.children[x].children[y];
-            let nextCell = gameBody.children[x].children[y+1];
-            let currentBlock = currentCell.firstElementChild;
-            let nextBlock = nextCell.firstElementChild;
-            
-            if(currentBlock) {
-                
-                if (nextBlock) {
-                    
-                    if (currentBlock.innerText == nextBlock.innerText) {
 
-                        currentBlock.remove();
-                        currentBlock = null;
-                        nextBlock.innerText *= 2; 
+            let currentCell = matrix[x][y];
+            let nextCellKey = y+1;
+
+            if (!currentCell) {
+                continue;
+            }
+
+            while (nextCellKey < matrix[x].length) {
+
+                const cell = gameBody.children[x].children[y];
+                let nextCell = matrix[x][nextCellKey];
+
+                
+                if (nextCell || nextCellKey === matrix[x].length-1) {
+                    if ((!nextCell && nextCellKey === matrix[x].length-1)||
+                        (nextCell == currentCell)) {
+
+                        matrix[x][nextCellKey] += currentCell;
+                        matrix[x][y] = 0;
+                        matrix.removeClass(cell);
+                        isShifted = true;
+                        
+                    } else if ( nextCell && nextCellKey-1!=y ) {
+
+                        matrix[x][nextCellKey-1] += currentCell;
+                        matrix[x][y] = 0;
+                        matrix.removeClass(cell);
+                        isShifted = true;
                     }
-                    continue
+                    break;
                 }
 
-                nextCell.classList.add('notempty');
-                currentCell.classList.remove('notempty');
-                nextCell.append(currentCell.firstElementChild);
+                nextCellKey++;
+                nextCell =  matrix[x][nextCellKey];
+                matrix.removeClass(cell);
             }
-          
         }
-    }
+    } 
+
+    if(isShifted) {
+        getRndEmptyCellAndPutBlock();
+        isShifted = false;
+    } 
+    renderMatrix(matrix);
 }
