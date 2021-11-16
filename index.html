@@ -10,14 +10,14 @@
 </head>
 
 <body>
-    <header class="header" hidden>
+    <header class="header">
 
         <div class="header__inner-wrapper inner-wrapper">
-            <h1 class="title">2048</h1>
-            <ul class="scores-container">
-                <li class="score-container">Score</li>
-                <li class="best-container">Best</li>
-            </ul>
+
+            <div class="container">
+                <h1 class="title">2048</h1>
+                <p class="score">Score: <span>0</span></p>
+            </div>
             <button class="restart-button">New Game</button>
         </div>
 
@@ -28,11 +28,12 @@
                 <div class="game-body">
 
                 </div>
+
             </div>
         </div>
     </main>
-    <footer class="footer">
-
+    <footer class="game-over" style="display: none;">
+        Game over!
     </footer>
     <script src="/js/main.js"></script>
 </body>
