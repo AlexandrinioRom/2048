@@ -2,19 +2,29 @@
 
 const gameBody = document.getElementsByClassName('game-body')[0];
 const score = document.getElementsByClassName('score')[0];
+const hardModButtons = document.getElementsByClassName('hard-mode');
 const gameOver = document.querySelector('.game-over');
+const wrapper = document.querySelector('.body__inner-wrapp');
+
 const matrix = [];
 
-document.addEventListener('click', restartGame)
+document.addEventListener('click', restartGame);
 document.addEventListener('keydown', moveBlock);
+document.addEventListener('click', focusField);
 
 createGameField();
 putInEmptyCell();
+putInEmptyCell();
 
-matrix.removeClass = function(cell) {
+ function removeClass(cell) {
     cell.className = '';
     cell.classList.add('row-item');
     cell.innerHTML = '';
+}
+
+function focusField(event) {
+    const target = event.target;
+    target.blur();
 }
 
 function createGameField() {
@@ -61,7 +71,7 @@ function checkEndGame() {
             }
 
             if (x < 3) {
-                if (matrix[x][y] == matrix[x][y + 1]) {
+                if (matrix[x][y] == matrix[x + 1][y]) {
                     return false;
                 }
             }
@@ -89,8 +99,13 @@ function restartGame(event) {
         if(gameOver.style.display == 'block') {
             gameOver.style.display = 'none';
         }
+        if(target.closest('.you-win')) {
+            wrapper.classList.remove('you-win');
+        }
+
         score.firstElementChild.innerHTML = 0;
         createGameField();
+        putInEmptyCell();
         putInEmptyCell();
     }
 }
@@ -108,6 +123,22 @@ function putInEmptyCell() {
     score.firstElementChild.innerHTML = +score.firstElementChild.innerHTML + value;
     
     renderMatrix(matrix);
+}
+
+function hardModeEnable() {
+    let hardModevalue = 1;
+    let counter = 0;
+
+    for(let btn of hardModButtons) {
+        if (btn.checked) {
+            hardModevalue = +btn.value;
+        }
+    }
+
+    while (counter < hardModevalue) {
+        putInEmptyCell();
+        counter++;
+    }
 }
 
 function getRandomInt(min, max) {
@@ -140,9 +171,12 @@ function renderMatrix(matrix) {
 
             const cell = gameBody.children[x].children[y];
             if(!matrix[x][y]) continue;
+            if(matrix[x][y] == 2048) {
+                wrapper.classList.add('you-win');
+            }
             cell.innerHTML = matrix[x][y];
             cell.className = 'block color'+ matrix[x][y];
-            
+            cell.classList.add('anim');
         }
     }
 }
@@ -152,7 +186,6 @@ function renderMatrix(matrix) {
 function moveBlock(event) {
 
     const keyCode = event.code;
-
     const accessKeys = [
         'KeyW', 'KeyD', 'KeyS', 'KeyA',
         'Numpad8', 'Numpad6', 'Numpad2', 'Numpad4',
@@ -160,13 +193,14 @@ function moveBlock(event) {
     ];
 
     if (!accessKeys.includes(keyCode)) return;
+    if (event.target.closest('input')) return;
 
     switch (keyCode) {
         case 'KeyW':
         case 'Numpad8':
         case 'ArrowUp':
 
-            mooveUp();
+            moveUp();
             
                 
             if(checkEndGame()) {
@@ -179,7 +213,7 @@ function moveBlock(event) {
         case 'Numpad6':
         case 'ArrowRight':
 
-            mooveRight();
+            moveRight();
         
             if(checkEndGame()) {
                 return gameOver.style.display = 'block';
@@ -191,7 +225,7 @@ function moveBlock(event) {
         case 'Numpad2':
         case 'ArrowDown':
 
-            mooveDown();
+            moveDown();
             
                
             if(checkEndGame()) {
@@ -204,7 +238,7 @@ function moveBlock(event) {
         case 'Numpad4':
         case 'ArrowLeft':
 
-            mooveLeft();
+            moveLeft();
             
                 
             if(checkEndGame()) {
@@ -217,7 +251,7 @@ function moveBlock(event) {
 }
 
 
-function mooveRight() {
+function moveRight() {
 
     let isShifted = false;
 
@@ -242,14 +276,14 @@ function mooveRight() {
 
                         matrix[x][nextCellKey] += currentCell;
                         matrix[x][y] = 0;
-                        matrix.removeClass(cell);
+                        removeClass(cell);
                         isShifted = true;
                         
                     } else if ( nextCell && (nextCellKey-1) != y ) {
 
                         matrix[x][nextCellKey - 1] += currentCell;
                         matrix[x][y] = 0;
-                        matrix.removeClass(cell);
+                        removeClass(cell);
                         isShifted = true;
                     }
                     break;
@@ -257,19 +291,19 @@ function mooveRight() {
 
                 nextCellKey++;
                 nextCell =  matrix[x][nextCellKey];
-                matrix.removeClass(cell);
+                removeClass(cell);
             }
         }
     } 
 
     if(isShifted) {
-        putInEmptyCell();
+        hardModeEnable();
         isShifted = false;
     } 
     renderMatrix(matrix);
 }
 
-function mooveLeft() {
+function moveLeft() {
 
     let isShifted = false;
 
@@ -294,14 +328,14 @@ function mooveLeft() {
 
                         matrix[x][nextCellKey] += currentCell;
                         matrix[x][y] = 0;
-                        matrix.removeClass(cell);
+                        removeClass(cell);
                         isShifted = true;
                         
                     } else if ( nextCell && (nextCellKey + 1) != y ) {
 
                         matrix[x][nextCellKey+1] += currentCell;
                         matrix[x][y] = 0;
-                        matrix.removeClass(cell);
+                        removeClass(cell);
                         isShifted = true;
                     }
                     break;
@@ -309,19 +343,19 @@ function mooveLeft() {
 
                 nextCellKey--;
                 nextCell =  matrix[x][nextCellKey];
-                matrix.removeClass(cell);
+                removeClass(cell)
             }
         }
     } 
 
     if(isShifted) {
-        putInEmptyCell();
+        hardModeEnable();
         isShifted = false;
     } 
     renderMatrix(matrix);
 }
 
-function mooveUp() {
+function moveUp() {
 
     let isShifted = false;
 
@@ -346,14 +380,14 @@ function mooveUp() {
 
                         matrix[nextCellKey][y] += currentCell;
                         matrix[x][y] = 0;
-                        matrix.removeClass(cell);
+                        removeClass(cell);
                         isShifted = true;
                         
                     } else if ( nextCell && (nextCellKey + 1) != x ) {
 
-                        matrix[nextCellKey+1][y] += currentCell;
+                        matrix[nextCellKey + 1][y] += currentCell;
                         matrix[x][y] = 0;
-                        matrix.removeClass(cell);
+                        removeClass(cell);
                         isShifted = true;
                     }
                     break;
@@ -361,19 +395,19 @@ function mooveUp() {
 
                 nextCellKey--;
                 nextCell =  matrix[nextCellKey][y];
-                matrix.removeClass(cell);
+                removeClass(cell);
             }
         }
     } 
 
     if(isShifted) {
-        putInEmptyCell();
+        hardModeEnable();
         isShifted = false;
     } 
     renderMatrix(matrix);
 }
 
-function mooveDown() {
+function moveDown() {
 
     let isShifted = false;
 
@@ -398,14 +432,14 @@ function mooveDown() {
 
                         matrix[nextCellKey][y] += currentCell;
                         matrix[x][y] = 0;
-                        matrix.removeClass(cell);
+                        removeClass(cell)
                         isShifted = true;
                         
                     } else if ( nextCell && (nextCellKey - 1) != x ) {
 
                         matrix[nextCellKey - 1][y] += currentCell;
                         matrix[x][y] = 0;
-                        matrix.removeClass(cell);
+                        removeClass(cell)
                         isShifted = true;
                     }
                     break;
@@ -413,13 +447,13 @@ function mooveDown() {
 
                 nextCellKey++;
                 nextCell =  matrix[nextCellKey][y];
-                matrix.removeClass(cell);
+                removeClass(cell)
             }
         }
     } 
 
     if(isShifted) {
-        putInEmptyCell();
+        hardModeEnable();
         isShifted = false;
     } 
     renderMatrix(matrix);

@@ -10,31 +10,38 @@
 </head>
 
 <body>
-    <header class="header">
-
-        <div class="header__inner-wrapper inner-wrapper">
-
-            <div class="container">
-                <h1 class="title">2048</h1>
-                <p class="score">Score: <span>0</span></p>
-            </div>
-            <button class="restart-button">New Game</button>
-        </div>
-
-    </header>
-    <main class="main">
-        <div class="main__inner-wrapper inner-wrapper">
-            <div class="game-container">
-                <div class="game-body">
+    <div class="body__inner-wrapp">
+        <header class="header">
+            <div class="header__inner-wrapper inner-wrapper">
+                <div class="container">
+                    <h1 class="title">2048</h1>
+                    <p class="score">Score: <span>0</span></p>
 
                 </div>
-
+                <button class="restart-button">New Game</button>
             </div>
-        </div>
-    </main>
-    <footer class="game-over" style="display: none;">
-        Game over!
-    </footer>
+        </header>
+        <main class="main">
+            <div class="main__inner-wrapper inner-wrapper">
+                <div class="game-container">
+                    <div class="game-body">
+                    </div>
+                </div>
+                <div class="hard-mod-container">
+                    <input class="hard-mode" type="radio" name="mode" value="1" checked>
+                    <input class="hard-mode" type="radio" name="mode" value="2">
+                    <input class="hard-mode" type="radio" name="mode" value="3">
+                    <input class="hard-mode" type="radio" name="mode" value="4">
+                    <p class="warning">don`t touch</p>
+                </div>
+            </div>
+
+        </main>
+        <footer class="game-over" style="display: none;">
+            Game over!
+        </footer>
+    </div>
+
     <script src="/js/main.js"></script>
 </body>
 

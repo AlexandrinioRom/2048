@@ -2,6 +2,18 @@
 @import "./fonts.css";
 @import "./overall.css";
 
+.body__inner-wrapp {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    background: floralwhite;
+}
+.you-win {
+    background: floralwhite url(/css/img/win.png) 127% top/40% no-repeat;
+    transition: all 0.5s ease;
+}
+
 .inner-wrapper {
     max-width: 500px;
     margin: 0 auto;
@@ -58,7 +70,6 @@
     text-align: center;
 }
 
-
 .score {
     margin-left: 20px;
     display: inline-block;
@@ -76,13 +87,45 @@
     background-color: #f0d937;
 }
 
+.main__inner-wrapper {
+    position: relative;
+}
+
+.hard-mod-container {
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    bottom: 13px;
+    right: -31px;
+}
+
+.warning {
+    writing-mode: tb-rl;
+    line-height: 7px;
+}
+
+.hard-mode {
+    appearance: none;
+    cursor: pointer;
+    border-radius: 50%;
+    width: 12px;
+    height: 12px;
+    transition: 0.1s all linear;
+    margin-bottom: 5px;
+    background-color: darkgray;
+
+}
+.hard-mode:checked {
+    border: 3px solid floralwhite;
+}
+
 .game-over {
     text-align: center;
     font-size: 50px;
     color: darkcyan;
 }
 
-.color2{background-color:#bed4d4}
+.color2{background-color:#7a7d89}
 
 .color4{background-color:#64d0b8}
 
@@ -100,27 +143,37 @@
 
 .color512{background-color:#9c0}
 
-.color1024{background-color:#33b5e5;color:#FFF;}
+.color1024{background-color:#2a2f2c;color:#FFF;}
 
-.color2048{background-color:#09c;color:#FFF;}
+.color2048{background-color:#e45418;color:#FFF;}
 
 .color4096{background-color:#a6c;color:#FFF;}
 
 .color8192{background-color:#93c;color:#FFF;}
 
 
-.color2,
-.color4,
-.color8,
-.color16,
-.color32,
-.color64,
-.color128,
-.color256,
-.color512,
-.color1024,
-.color2048,
-.color4096,
-.color8192 {
-    transition: all 0.13s;
+.anim {
+    position: relative;
+    transition: all 0.13s ease-in;
 }
+/*----------------------------------------тут разберись--------------------------------*/
+/* .color8::after,
+.color16::after,
+.color32::after,
+.color64::after,
+.color128::after,
+.color256::after,
+.color512::after,
+.color1024::after,
+.color2048::after,
+.color4096::after,
+.color8192::after {
+    position: absolute;
+    content: '';
+    top: 0;
+    left: 0;
+    height: 103%;
+    width: 103%;
+    transform: scale(1.1);
+    transition: all;
+} */ 
