@@ -16,10 +16,18 @@ createGameField();
 putInEmptyCell();
 putInEmptyCell();
 
- function removeClass(cell) {
+function removeClass(cell) {
     cell.className = '';
     cell.classList.add('row-item');
     cell.innerHTML = '';
+}
+
+function firstKey(key) {
+    return key == 0;
+}
+
+function lastKey(key) {
+    return key == matrix.length - 1;
 }
 
 function focusField(event) {
@@ -58,13 +66,13 @@ function checkEndGame() {
             const nextCellKey = y + 1;
             const lowerCellKey = x + 1;
 
-            if(nextCellKey === 4){
+            if(lastKey(nextCellKey)){
                  
                 if (matrix[x][y] == matrix[x][y + 1]) {
                     return false;
                 }
                
-            } else if(lowerCellKey === 4) {
+            } else if(lastKey(lowerCellKey)) {
                 if (matrix[x][y] == matrix[x][y + 1]) {
                     return false
                 }
@@ -170,7 +178,7 @@ function renderMatrix(matrix) {
         for(let y = 0; y < matrix.length; y++) {
 
             const cell = gameBody.children[x].children[y];
-            if(!matrix[x][y]) continue;
+            if(!matrix[x][y])  continue;
             if(matrix[x][y] == 2048) {
                 wrapper.classList.add('you-win');
             }
@@ -186,6 +194,7 @@ function renderMatrix(matrix) {
 function moveBlock(event) {
 
     const keyCode = event.code;
+
     const accessKeys = [
         'KeyW', 'KeyD', 'KeyS', 'KeyA',
         'Numpad8', 'Numpad6', 'Numpad2', 'Numpad4',
@@ -193,7 +202,6 @@ function moveBlock(event) {
     ];
 
     if (!accessKeys.includes(keyCode)) return;
-    if (event.target.closest('input')) return;
 
     switch (keyCode) {
         case 'KeyW':
@@ -202,7 +210,6 @@ function moveBlock(event) {
 
             moveUp();
             
-                
             if(checkEndGame()) {
                 return gameOver.style.display = 'block';
             }
@@ -214,7 +221,7 @@ function moveBlock(event) {
         case 'ArrowRight':
 
             moveRight();
-        
+            
             if(checkEndGame()) {
                 return gameOver.style.display = 'block';
             } 
@@ -227,7 +234,6 @@ function moveBlock(event) {
 
             moveDown();
             
-               
             if(checkEndGame()) {
                 return gameOver.style.display = 'block';
             }
@@ -239,8 +245,7 @@ function moveBlock(event) {
         case 'ArrowLeft':
 
             moveLeft();
-            
-                
+              
             if(checkEndGame()) {
                 return gameOver.style.display = 'block';
             }
@@ -249,7 +254,6 @@ function moveBlock(event) {
     }
     
 }
-
 
 function moveRight() {
 
@@ -268,18 +272,47 @@ function moveRight() {
             while (nextCellKey < matrix[x].length) {
 
                 const cell = gameBody.children[x].children[y];
+                const previousCell = gameBody.children[x].children[y-1];
+                const firstCell = gameBody.children[x].children[y-2];
                 let nextCell = matrix[x][nextCellKey];
                 
-                if (nextCell || nextCellKey === matrix[x].length - 1) {
-                    if ((!nextCell && nextCellKey === matrix[x].length - 1)||
+                if (nextCell || lastKey(nextCellKey)) {
+                    if ((!nextCell && lastKey(nextCellKey))||
                         (nextCell == currentCell)) {
 
                         matrix[x][nextCellKey] += currentCell;
+
+                        if((currentCell + nextCell == matrix[x][y-2] && nextCell)
+                            && matrix[x][y-1] == 0) {
+
+                            matrix[x][y] = matrix[x][y-2];
+                            matrix[x][y-2] = 0;
+                            removeClass(firstCell);
+                            isShifted = true;
+                            break;
+                        }
+
+                        if(currentCell + nextCell == matrix[x][y-1] && nextCell) {
+
+                            matrix[x][y] = matrix[x][y-1];
+                            matrix[x][y-1] = 0;
+
+                            if(matrix[x][y+1] == 0) {
+
+                                matrix[x].splice(y+1,1);
+                                matrix[x].splice(0,0,0);
+                            } 
+
+                            removeClass(previousCell);
+                            isShifted = true;
+                            break;
+                        }
+
                         matrix[x][y] = 0;
                         removeClass(cell);
                         isShifted = true;
                         
-                    } else if ( nextCell && (nextCellKey-1) != y ) {
+                    } else if ( nextCell && (nextCellKey - 1) != y ) {
 
                         matrix[x][nextCellKey - 1] += currentCell;
                         matrix[x][y] = 0;
@@ -290,7 +323,7 @@ function moveRight() {
                 }
 
                 nextCellKey++;
-                nextCell =  matrix[x][nextCellKey];
+                nextCell = matrix[x][nextCellKey];
                 removeClass(cell);
             }
         }
@@ -302,6 +335,8 @@ function moveRight() {
     } 
     renderMatrix(matrix);
 }
+
+
 
 function moveLeft() {
 
@@ -320,18 +355,47 @@ function moveLeft() {
             while (nextCellKey < matrix[x].length) {
 
                 const cell = gameBody.children[x].children[y];
+                const previousCell = gameBody.children[x].children[y+1];
+                const firstCell = gameBody.children[x].children[y+2];
                 let nextCell = matrix[x][nextCellKey];
                 
-                if (nextCell || nextCellKey === 0) {
-                    if ((!nextCell && nextCellKey === 0)||
+                if (nextCell || firstKey(nextCellKey)) {
+                    if ((!nextCell && firstKey(nextCellKey))||
                         (nextCell == currentCell)) {
 
                         matrix[x][nextCellKey] += currentCell;
+
+                        if((currentCell + nextCell == matrix[x][y+2] && nextCell)
+                            && matrix[x][y+1] == 0) { 
+
+                            matrix[x][y] = matrix[x][y+2];
+                            matrix[x][y+2] = 0;
+                            removeClass(firstCell);
+                            isShifted = true;
+                            break;
+                        }
+
+                        if(currentCell + nextCell == matrix[x][y+1] && nextCell) {
+
+                            matrix[x][y] = matrix[x][y+1];
+                            matrix[x][y+1] = 0;
+
+                            if(matrix[x][y-1] == 0) {
+                                
+                                matrix[x].splice(y-1,1);
+                                matrix[x].splice(3,0,0);
+                            } 
+
+                            removeClass(previousCell);
+                            isShifted = true;
+                            break;
+                        }
+
                         matrix[x][y] = 0;
                         removeClass(cell);
                         isShifted = true;
                         
-                    } else if ( nextCell && (nextCellKey + 1) != y ) {
+                    } else if (nextCell && (nextCellKey + 1) != y ) {
 
                         matrix[x][nextCellKey+1] += currentCell;
                         matrix[x][y] = 0;
@@ -342,7 +406,7 @@ function moveLeft() {
                 }
 
                 nextCellKey--;
-                nextCell =  matrix[x][nextCellKey];
+                nextCell = matrix[x][nextCellKey];
                 removeClass(cell)
             }
         }
@@ -364,7 +428,9 @@ function moveUp() {
 
             let currentCell = matrix[x][y];
             let nextCellKey = x - 1;
-
+            const indexFirstCell = (x + 2 < 4)? x + 2 : 3;
+            const indexPrevious = (x + 1 < 4)? x + 1 : x;
+            
             if (!currentCell) {
                 continue;
             }
@@ -372,18 +438,47 @@ function moveUp() {
             while (nextCellKey < matrix.length) {
 
                 const cell = gameBody.children[x].children[y];
+                const previousCell = gameBody.children[indexPrevious].children[y];
+                const firstCell = gameBody.children[indexFirstCell].children[y];
                 let nextCell = matrix[nextCellKey][y];
                 
-                if (nextCell || nextCellKey === 0) {
-                    if ((!nextCell && nextCellKey === 0)||
+                if (nextCell || firstKey(nextCellKey)) {
+                    if ((!nextCell && firstKey(nextCellKey))||
                         (nextCell == currentCell)) {
 
                         matrix[nextCellKey][y] += currentCell;
+
+                        if((currentCell + nextCell == matrix[indexFirstCell][y] && nextCell)
+                        && matrix[indexPrevious][y] == 0) {
+                            
+                        matrix[x][y] = matrix[indexFirstCell][y];
+                        matrix[indexFirstCell][y] = 0;
+                        removeClass(firstCell);
+                        isShifted = true;
+                        break;
+                    }
+
+                    if(currentCell + nextCell == matrix[indexPrevious][y] && nextCell) {
+
+                        matrix[x][y] = matrix[indexPrevious][y];
+                        matrix[indexPrevious][y] = 0;
+
+                        if(matrix[x-1][y] == 0) {
+
+                            matrix[x-1].splice(y,1,matrix[x][y]);
+                            matrix[x].splice(y,1,0);
+                        } 
+
+                        removeClass(previousCell);
+                        isShifted = true;
+                        break;
+                    }
+
                         matrix[x][y] = 0;
                         removeClass(cell);
                         isShifted = true;
                         
-                    } else if ( nextCell && (nextCellKey + 1) != x ) {
+                    } else if (nextCell && (nextCellKey + 1) != x ) {
 
                         matrix[nextCellKey + 1][y] += currentCell;
                         matrix[x][y] = 0;
@@ -394,7 +489,7 @@ function moveUp() {
                 }
 
                 nextCellKey--;
-                nextCell =  matrix[nextCellKey][y];
+                nextCell = matrix[nextCellKey][y];
                 removeClass(cell);
             }
         }
@@ -416,6 +511,8 @@ function moveDown() {
 
             let currentCell = matrix[x][y];
             let nextCellKey = x + 1;
+            const indexFirstCell = (x - 2 > 0)? x - 2 : 0;
+            const indexPrevious = (x - 1 >= 0)? x - 1 : x;
 
             if (!currentCell) {
                 continue;
@@ -424,22 +521,51 @@ function moveDown() {
             while (nextCellKey < matrix.length) {
 
                 const cell = gameBody.children[x].children[y];
+                const previousCell = gameBody.children[indexPrevious].children[y];
+                const firstCell = gameBody.children[indexFirstCell].children[y];
                 let nextCell = matrix[nextCellKey][y];
                 
-                if (nextCell || nextCellKey === matrix.length - 1) {
-                    if ((!nextCell && nextCellKey === matrix.length - 1)||
+                if (nextCell || lastKey(nextCellKey)) {
+                    if ((!nextCell && lastKey(nextCellKey))||
                         (nextCell == currentCell)) {
-
+                            
                         matrix[nextCellKey][y] += currentCell;
+
+                    if((currentCell + nextCell == matrix[indexFirstCell][y] && nextCell)
+                        && matrix[indexPrevious][y] == 0) {
+
+                        matrix[x][y] = matrix[indexFirstCell][y];
+                        matrix[indexFirstCell][y] = 0;
+                        removeClass(firstCell);
+                        isShifted = true;
+                        break;
+                    }
+
+                    if(currentCell + nextCell == matrix[indexPrevious][y] && nextCell) {
+
+                        matrix[x][y] = matrix[indexPrevious][y];
+                        matrix[indexPrevious][y] = 0;
+
+                        if(matrix[x+1][y] == 0) {
+
+                            matrix[x+1].splice(y,1,matrix[x][y]);
+                            matrix[x].splice(y,1,0);
+                        } 
+
+                        removeClass(previousCell);
+                        isShifted = true;
+                        break;
+                    }
+
                         matrix[x][y] = 0;
-                        removeClass(cell)
+                        removeClass(cell);
                         isShifted = true;
                         
                     } else if ( nextCell && (nextCellKey - 1) != x ) {
 
                         matrix[nextCellKey - 1][y] += currentCell;
                         matrix[x][y] = 0;
-                        removeClass(cell)
+                        removeClass(cell);
                         isShifted = true;
                     }
                     break;
@@ -447,7 +573,7 @@ function moveDown() {
 
                 nextCellKey++;
                 nextCell =  matrix[nextCellKey][y];
-                removeClass(cell)
+                removeClass(cell);
             }
         }
     } 
@@ -459,3 +585,30 @@ function moveDown() {
     renderMatrix(matrix);
 }
 
+
+function resetField() {
+
+        
+        for(let x = gameBody.children.length - 1; x >= 0; x--) {
+            gameBody.children[x].remove();
+        }
+            
+        if(gameOver.style.display == 'block') {
+            gameOver.style.display = 'none';
+        }
+        
+
+        score.firstElementChild.innerHTML = 0;
+        createGameField();
+        // matrix[0][3] = 2;
+        // matrix[0][2] = 2;
+        // matrix[0][1] = 4;
+        // matrix[0][0] = 4;
+
+        matrix[0][1] = 4;
+        matrix[1][1] = 2;
+        matrix[2][1] = 0;
+        matrix[3][1] = 2;
+        renderMatrix(matrix);
+        console.log(matrix);
+}
