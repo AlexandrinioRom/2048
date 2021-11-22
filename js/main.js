@@ -262,70 +262,7 @@ function moveRight() {
     for(let x = 0; x < matrix.length; x++) {
         for(let y = matrix[x].length - 2; y >= 0; y--) {
 
-            let currentCell = matrix[x][y];
-            let nextCellKey = y + 1;
-
-            if (!currentCell) {
-                continue;
-            }
-
-            while (nextCellKey < matrix[x].length) {
-
-                const cell = gameBody.children[x].children[y];
-                const previousCell = gameBody.children[x].children[y-1];
-                const firstCell = gameBody.children[x].children[y-2];
-                let nextCell = matrix[x][nextCellKey];
-                
-                if (nextCell || lastKey(nextCellKey)) {
-                    if ((!nextCell && lastKey(nextCellKey))||
-                        (nextCell == currentCell)) {
-
-                        matrix[x][nextCellKey] += currentCell;
-
-                        if((currentCell + nextCell == matrix[x][y-2] && nextCell)
-                            && matrix[x][y-1] == 0) {
-
-                            matrix[x][y] = matrix[x][y-2];
-                            matrix[x][y-2] = 0;
-                            removeClass(firstCell);
-                            isShifted = true;
-                            break;
-                        }
-
-                        if(currentCell + nextCell == matrix[x][y-1] && nextCell) {
-
-                            matrix[x][y] = matrix[x][y-1];
-                            matrix[x][y-1] = 0;
-
-                            if(matrix[x][y+1] == 0) {
-
-                                matrix[x].splice(y+1,1);
-                                matrix[x].splice(0,0,0);
-                            } 
-
-                            removeClass(previousCell);
-                            isShifted = true;
-                            break;
-                        }
-
-                        matrix[x][y] = 0;
-                        removeClass(cell);
-                        isShifted = true;
-                        
-                    } else if ( nextCell && (nextCellKey - 1) != y ) {
-
-                        matrix[x][nextCellKey - 1] += currentCell;
-                        matrix[x][y] = 0;
-                        removeClass(cell);
-                        isShifted = true;
-                    }
-                    break;
-                }
-
-                nextCellKey++;
-                nextCell = matrix[x][nextCellKey];
-                removeClass(cell);
-            }
+            isShifted = moveHorizontal(x, y, true, lastKey) || isShifted;
         }
     } 
 
@@ -336,79 +273,37 @@ function moveRight() {
     renderMatrix(matrix);
 }
 
-
-
 function moveLeft() {
 
     let isShifted = false;
 
     for(let x = 0; x < matrix.length; x++) {
         for(let y = 1; y < matrix[x].length; y++) {
+            isShifted = moveHorizontal(x, y, false, firstKey) || isShifted;
+        }
+    }
+
+    if(isShifted) {
+        hardModeEnable();
+        isShifted = false;
+    } 
+    renderMatrix(matrix);
+}
+
+function moveDown() {
+
+    let isShifted = false;
+
+    for(let x = matrix.length - 2; x >= 0; x--) {
+        for(let y = 0; y < matrix[x].length; y++) {
 
             let currentCell = matrix[x][y];
-            let nextCellKey = y - 1;
-
+            
             if (!currentCell) {
                 continue;
             }
             
-            while (nextCellKey < matrix[x].length) {
-
-                const cell = gameBody.children[x].children[y];
-                const previousCell = gameBody.children[x].children[y+1];
-                const firstCell = gameBody.children[x].children[y+2];
-                let nextCell = matrix[x][nextCellKey];
-                
-                if (nextCell || firstKey(nextCellKey)) {
-                    if ((!nextCell && firstKey(nextCellKey))||
-                        (nextCell == currentCell)) {
-
-                        matrix[x][nextCellKey] += currentCell;
-
-                        if((currentCell + nextCell == matrix[x][y+2] && nextCell)
-                            && matrix[x][y+1] == 0) { 
-
-                            matrix[x][y] = matrix[x][y+2];
-                            matrix[x][y+2] = 0;
-                            removeClass(firstCell);
-                            isShifted = true;
-                            break;
-                        }
-
-                        if(currentCell + nextCell == matrix[x][y+1] && nextCell) {
-
-                            matrix[x][y] = matrix[x][y+1];
-                            matrix[x][y+1] = 0;
-
-                            if(matrix[x][y-1] == 0) {
-                                
-                                matrix[x].splice(y-1,1);
-                                matrix[x].splice(3,0,0);
-                            } 
-
-                            removeClass(previousCell);
-                            isShifted = true;
-                            break;
-                        }
-
-                        matrix[x][y] = 0;
-                        removeClass(cell);
-                        isShifted = true;
-                        
-                    } else if (nextCell && (nextCellKey + 1) != y ) {
-
-                        matrix[x][nextCellKey+1] += currentCell;
-                        matrix[x][y] = 0;
-                        removeClass(cell);
-                        isShifted = true;
-                    }
-                    break;
-                }
-
-                nextCellKey--;
-                nextCell = matrix[x][nextCellKey];
-                removeClass(cell)
-            }
+            isShifted =  moveVertical (x, y, true, currentCell, lastKey) || isShifted;
         }
     } 
 
@@ -427,71 +322,13 @@ function moveUp() {
         for(let y = 0; y < matrix[x].length; y++) {
 
             let currentCell = matrix[x][y];
-            let nextCellKey = x - 1;
-            const indexFirstCell = (x + 2 < 4)? x + 2 : 3;
-            const indexPrevious = (x + 1 < 4)? x + 1 : x;
+            
             
             if (!currentCell) {
                 continue;
             }
             
-            while (nextCellKey < matrix.length) {
-
-                const cell = gameBody.children[x].children[y];
-                const previousCell = gameBody.children[indexPrevious].children[y];
-                const firstCell = gameBody.children[indexFirstCell].children[y];
-                let nextCell = matrix[nextCellKey][y];
-                
-                if (nextCell || firstKey(nextCellKey)) {
-                    if ((!nextCell && firstKey(nextCellKey))||
-                        (nextCell == currentCell)) {
-
-                        matrix[nextCellKey][y] += currentCell;
-
-                        if((currentCell + nextCell == matrix[indexFirstCell][y] && nextCell)
-                        && matrix[indexPrevious][y] == 0) {
-                            
-                        matrix[x][y] = matrix[indexFirstCell][y];
-                        matrix[indexFirstCell][y] = 0;
-                        removeClass(firstCell);
-                        isShifted = true;
-                        break;
-                    }
-
-                    if(currentCell + nextCell == matrix[indexPrevious][y] && nextCell) {
-
-                        matrix[x][y] = matrix[indexPrevious][y];
-                        matrix[indexPrevious][y] = 0;
-
-                        if(matrix[x-1][y] == 0) {
-
-                            matrix[x-1].splice(y,1,matrix[x][y]);
-                            matrix[x].splice(y,1,0);
-                        } 
-
-                        removeClass(previousCell);
-                        isShifted = true;
-                        break;
-                    }
-
-                        matrix[x][y] = 0;
-                        removeClass(cell);
-                        isShifted = true;
-                        
-                    } else if (nextCell && (nextCellKey + 1) != x ) {
-
-                        matrix[nextCellKey + 1][y] += currentCell;
-                        matrix[x][y] = 0;
-                        removeClass(cell);
-                        isShifted = true;
-                    }
-                    break;
-                }
-
-                nextCellKey--;
-                nextCell = matrix[nextCellKey][y];
-                removeClass(cell);
-            }
+            isShifted =  moveVertical (x, y, false, currentCell, firstKey) || isShifted;
         }
     } 
 
@@ -502,113 +339,213 @@ function moveUp() {
     renderMatrix(matrix);
 }
 
-function moveDown() {
+function moveVertical (x, y, isIncrement, currentCell, keyCheck) {
+
+    let nextCellKey;
+    let isShifted = false;
+    let indexFirstCell;
+    let indexPrevious;
+
+    if (isIncrement) {
+
+        nextCellKey = x + 1;
+        indexFirstCell = (x - 2 > 0)? x - 2 : 0;
+        indexPrevious = (x - 1 >= 0)? x - 1 : x;
+
+    }
+
+    if (!isIncrement) {
+
+        nextCellKey = x - 1;
+        indexFirstCell = (x + 2 < 4)? x + 2 : 3;
+        indexPrevious = (x + 1 < 4)? x + 1 : x;
+
+    }
+    
+    while (nextCellKey < matrix.length) {
+
+        const cell = gameBody.children[x].children[y];
+        const previousCell = gameBody.children[indexPrevious].children[y];
+        const firstCell = gameBody.children[indexFirstCell].children[y];
+        let nextCell = matrix[nextCellKey][y];
+        
+        if (nextCell || keyCheck(nextCellKey)) {
+            if ((!nextCell && keyCheck(nextCellKey))||
+                (nextCell == currentCell)) {
+                    
+                matrix[nextCellKey][y] += currentCell;
+
+            if((currentCell + nextCell == matrix[indexFirstCell][y] && nextCell)
+                && matrix[indexPrevious][y] == 0) {
+
+                matrix[x][y] = matrix[indexFirstCell][y];
+                matrix[indexFirstCell][y] = 0;
+                removeClass(firstCell);
+                isShifted = true;
+                break;
+            }
+
+            if(currentCell + nextCell == matrix[indexPrevious][y] && nextCell) {
+
+                matrix[x][y] = matrix[indexPrevious][y];
+                matrix[indexPrevious][y] = 0;
+
+                if (isIncrement) {
+                    if(matrix[x+1][y] == 0) {
+
+                        matrix[x+1].splice(y,1,matrix[x][y]);
+                        matrix[x].splice(y,1,0);
+                    }
+                } 
+
+                if (!isIncrement) {
+                    if(matrix[x-1][y] == 0) {
+
+                        matrix[x-1].splice(y,1,matrix[x][y]);
+                        matrix[x].splice(y,1,0);
+                    }
+                }
+
+                removeClass(previousCell);
+                isShifted = true;
+                break;
+            }
+
+                matrix[x][y] = 0;
+                removeClass(cell);
+                isShifted = true;
+                
+            } else if ( nextCell && (isIncrement) ? (nextCellKey - 1) != x : (nextCellKey + 1) != x) {
+
+                matrix[(isIncrement) ? (nextCellKey - 1) : (nextCellKey + 1)][y] += currentCell;
+                matrix[x][y] = 0;
+                removeClass(cell);
+                isShifted = true;
+            }
+            break;
+        }
+
+        if (isIncrement) {
+            nextCellKey++;
+            nextCell =  matrix[nextCellKey][y];
+            removeClass(cell);
+        }
+        if(!isIncrement) {
+            nextCellKey--;
+            nextCell =  matrix[nextCellKey][y];
+            removeClass(cell);
+        }  
+    }
+ return isShifted;
+}
+
+function moveHorizontal(x, y, isIncrement, keyCheck) {
 
     let isShifted = false;
 
-    for(let x = matrix.length - 2; x >= 0; x--) {
-        for(let y = 0; y < matrix[x].length; y++) {
+    let increment = (isIncrement) ? 1 : -1;
+    let currentCell = matrix[x][y];
+    let nextCellKey = y + increment;
 
-            let currentCell = matrix[x][y];
-            let nextCellKey = x + 1;
-            const indexFirstCell = (x - 2 > 0)? x - 2 : 0;
-            const indexPrevious = (x - 1 >= 0)? x - 1 : x;
-
-            if (!currentCell) {
-                continue;
-            }
+    if (!currentCell) {
+        return null;
+    }
             
-            while (nextCellKey < matrix.length) {
+    while (nextCellKey < matrix[x].length) {
 
-                const cell = gameBody.children[x].children[y];
-                const previousCell = gameBody.children[indexPrevious].children[y];
-                const firstCell = gameBody.children[indexFirstCell].children[y];
-                let nextCell = matrix[nextCellKey][y];
-                
-                if (nextCell || lastKey(nextCellKey)) {
-                    if ((!nextCell && lastKey(nextCellKey))||
-                        (nextCell == currentCell)) {
-                            
-                        matrix[nextCellKey][y] += currentCell;
+        const cell = gameBody.children[x].children[y];
+        const previousCell = gameBody.children[x].children[y - increment];
+        const firstCell = gameBody.children[x].children[y - (increment * 2)];
+        let nextCell = matrix[x][nextCellKey];
+        
+        if (nextCell || keyCheck(nextCellKey)) {
+            if ((!nextCell && keyCheck(nextCellKey))||
+                (nextCell == currentCell)) {
 
-                    if((currentCell + nextCell == matrix[indexFirstCell][y] && nextCell)
-                        && matrix[indexPrevious][y] == 0) {
+                matrix[x][nextCellKey] += currentCell;
 
-                        matrix[x][y] = matrix[indexFirstCell][y];
-                        matrix[indexFirstCell][y] = 0;
-                        removeClass(firstCell);
-                        isShifted = true;
-                        break;
-                    }
+                if((currentCell + nextCell == matrix[x][y - (increment * 2)] && nextCell)
+                    && matrix[x][y - increment] == 0) { 
 
-                    if(currentCell + nextCell == matrix[indexPrevious][y] && nextCell) {
-
-                        matrix[x][y] = matrix[indexPrevious][y];
-                        matrix[indexPrevious][y] = 0;
-
-                        if(matrix[x+1][y] == 0) {
-
-                            matrix[x+1].splice(y,1,matrix[x][y]);
-                            matrix[x].splice(y,1,0);
-                        } 
-
-                        removeClass(previousCell);
-                        isShifted = true;
-                        break;
-                    }
-
-                        matrix[x][y] = 0;
-                        removeClass(cell);
-                        isShifted = true;
-                        
-                    } else if ( nextCell && (nextCellKey - 1) != x ) {
-
-                        matrix[nextCellKey - 1][y] += currentCell;
-                        matrix[x][y] = 0;
-                        removeClass(cell);
-                        isShifted = true;
-                    }
+                    matrix[x][y] = matrix[x][y - (increment * 2)];
+                    matrix[x][y - (increment * 2)] = 0;
+                    removeClass(firstCell);
+                    isShifted = true;
                     break;
                 }
 
-                nextCellKey++;
-                nextCell =  matrix[nextCellKey][y];
+                if(currentCell + nextCell == matrix[x][y - increment] && nextCell) {
+
+                    matrix[x][y] = matrix[x][y - increment];
+                    matrix[x][y - increment] = 0;
+
+                    if (increment) {
+
+                        if(matrix[x][y+1] == 0) {
+
+                            matrix[x].splice(y+1,1);
+                            matrix[x].splice(0,0,0);
+                        }
+
+                    } else {
+
+                        if(matrix[x][y-1] == 0) {
+                        
+                            matrix[x].splice(y-1,1);
+                            matrix[x].splice(3,0,0);
+                        }
+                    }
+                        
+                    removeClass(previousCell);
+                    isShifted = true;
+                    break;
+                }
+
+                matrix[x][y] = 0;
                 removeClass(cell);
+                isShifted = true;
+                
+            } else if (nextCell && (isIncrement) ? ((nextCellKey - 1) != y) : ((nextCellKey + 1) != y)) {
+
+                matrix[x][(isIncrement) ? (nextCellKey - 1) : (nextCellKey + 1)] += currentCell;
+                matrix[x][y] = 0;
+                removeClass(cell);
+                isShifted = true;
             }
+            break;
         }
-    } 
 
-    if(isShifted) {
-        hardModeEnable();
-        isShifted = false;
-    } 
-    renderMatrix(matrix);
+        nextCellKey += increment;
+        nextCell = matrix[x][nextCellKey];
+        removeClass(cell)
+    }
+
+    return isShifted;
 }
-
 
 function resetField() {
 
         
-        for(let x = gameBody.children.length - 1; x >= 0; x--) {
-            gameBody.children[x].remove();
-        }
-            
-        if(gameOver.style.display == 'block') {
-            gameOver.style.display = 'none';
-        }
+    for(let x = gameBody.children.length - 1; x >= 0; x--) {
+        gameBody.children[x].remove();
+    }
         
+    if(gameOver.style.display == 'block') {
+        gameOver.style.display = 'none';
+    }
+    
 
-        score.firstElementChild.innerHTML = 0;
-        createGameField();
-        // matrix[0][3] = 2;
-        // matrix[0][2] = 2;
-        // matrix[0][1] = 4;
-        // matrix[0][0] = 4;
+    score.firstElementChild.innerHTML = 0;
+    createGameField();
+    // matrix[0][3] = 2;
+    // matrix[0][2] = 2;
+    // matrix[0][1] = 4;
+    // matrix[0][0] = 4;
 
-        matrix[0][1] = 4;
-        matrix[1][1] = 2;
-        matrix[2][1] = 0;
-        matrix[3][1] = 2;
-        renderMatrix(matrix);
-        console.log(matrix);
+    matrix[1][0] = 4;
+    matrix[1][1] = 2;
+    matrix[1][2] = 2;
+    matrix[1][3] = 0;
+    renderMatrix(matrix);
+    console.log(matrix);
 }
