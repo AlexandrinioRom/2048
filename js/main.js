@@ -522,30 +522,3 @@ function moveHorizontal(x, y, isIncrement, keyCheck) {
 
     return isShifted;
 }
-
-function resetField() {
-
-        
-    for(let x = gameBody.children.length - 1; x >= 0; x--) {
-        gameBody.children[x].remove();
-    }
-        
-    if(gameOver.style.display == 'block') {
-        gameOver.style.display = 'none';
-    }
-    
-
-    score.firstElementChild.innerHTML = 0;
-    createGameField();
-    // matrix[0][3] = 2;
-    // matrix[0][2] = 2;
-    // matrix[0][1] = 4;
-    // matrix[0][0] = 4;
-
-    matrix[1][0] = 4;
-    matrix[1][1] = 2;
-    matrix[1][2] = 2;
-    matrix[1][3] = 0;
-    renderMatrix(matrix);
-    console.log(matrix);
-}
